@@ -1,0 +1,34 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.main.excelsior.injection.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "plugin": "org.main.excelsior.injection.ExcelsiorMixinPlugin",
+  "client": [
+    "core.MixinBufferBuilder",
+    "core.MixinDebugHud",
+    "core.MixinRenderLayer",
+    "core.MixinTextureManager",
+    "core.MixinVertexConsumerProvider",
+    "disable_error_checking.MixinGL11",
+    "fast_buffer_upload.MixinVertexBuffer",
+    "fast_text_lookup.ISinglePreparationResourceReloader",
+    "fast_text_lookup.MixinFontManager",
+    "font_atlas_resizing.MixinGlyphAtlasTexture",
+    "hud_batching.MixinDebugHud",
+    "hud_batching.MixinInGameHud",
+    "hud_batching.MixinMinecraftClient",
+    "hud_batching.compat.MixinArmorChroma_GuiArmor",
+    "hud_batching.consumer.MixinDrawableHelper",
+    "hud_batching.consumer.MixinItemRenderer",
+    "hud_batching.consumer.MixinTextRenderer",
+    "map_atlas_generation.MixinMapRenderer",
+    "map_atlas_generation.MixinMapRenderer_MapTexture"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

@@ -1,0 +1,174 @@
+/*
+ *  Copyright (c) 2023 M4ximumpizza - All Rights Reserved.
+ */
+package org.main.excelsior.feature.batching;
+
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import org.main.excelsior.Excelsior;
+import org.main.excelsior.feature.core.BatchableImmediate;
+
+import java.util.Map;
+
+/**
+ * Class which holds various allocated buffers used for batching various rendered elements.
+ * <p>
+ * Also contains references to vertex consumers which are called within mixins to redirect the vertex data into the batching buffer.
+ * <p>
+ * Once a begin method is called, all vertex data between the begin and end method will be redirected into the batching buffer and drawn in one batch at the end.
+ */
+public class BatchingBuffers {
+
+    /*
+     * The references into which specific vertex data is redirected.
+     *
+     * Set to null if batching is disabled and the data should be drawn immediately as usual.
+     */
+    public static VertexConsumerProvider FILL_CONSUMER = null;
+    public static VertexConsumerProvider TEXTURE_CONSUMER = null;
+    public static VertexConsumerProvider TEXT_CONSUMER = null;
+    public static VertexConsumerProvider LIT_ITEM_MODEL_CONSUMER = null;
+    public static VertexConsumerProvider UNLIT_ITEM_MODEL_CONSUMER = null;
+    public static VertexConsumerProvider ITEM_OVERLAY_CONSUMER = null;
+
+    /*
+     * The batching buffers which hold the vertex data of the batch.
+     */
+    private static final BatchableImmediate FILL_BATCH = new BatchableImmediate();
+    private static final BatchableImmediate TEXTURE_BATCH = new BatchableImmediate();
+    private static final BatchableImmediate TEXT_BATCH = new BatchableImmediate();
+    private static final BatchableImmediate LIT_ITEM_MODEL_BATCH = new ItemModelBatchableImmediate(true);
+    private static final BatchableImmediate UNLIT_ITEM_MODEL_BATCH = new ItemModelBatchableImmediate(false);
+    private static final BatchableImmediate ITEM_OVERLAY_BATCH = new BatchableImmediate();
+
+    public static void beginHudBatching() {
+        beginFillBatching();
+        beginTextureBatching();
+        beginTextBatching();
+    }
+
+    public static void endHudBatching() {
+        endFillBatching();
+        endTextureBatching();
+        endTextBatching();
+    }
+
+    public static void beginItemBatching() {
+        beginItemModelBatching();
+        beginItemOverlayBatching();
+    }
+
+    public static void endItemBatching() {
+        endItemModelBatching();
+        endItemOverlayBatching();
+    }
+
+
+    public static void beginTextureBatching() {
+        if (TEXTURE_BATCH.hasActiveLayers()) {
+            Excelsior.LOGGER.warn("Texture batching was already active! endTextureBatching() was not called before beginTextureBatching(). This will cause rendering issues.");
+            TEXTURE_BATCH.close();
+        }
+        TEXTURE_CONSUMER = TEXTURE_BATCH;
+    }
+
+    public static void endTextureBatching() {
+        TEXTURE_CONSUMER = null;
+        TEXTURE_BATCH.draw();
+    }
+
+    public static boolean isTextureBatching() {
+        return TEXTURE_CONSUMER != null;
+    }
+
+    public static void beginFillBatching() {
+        if (FILL_BATCH.hasActiveLayers()) {
+            Excelsior.LOGGER.warn("Fill batching was already active! endFillBatching() was not called before beginFillBatching(). This will cause rendering issues.");
+            FILL_BATCH.close();
+        }
+        FILL_CONSUMER = FILL_BATCH;
+    }
+
+    public static void endFillBatching() {
+        FILL_CONSUMER = null;
+        FILL_BATCH.draw();
+    }
+
+    public static boolean isFillBatching() {
+        return FILL_CONSUMER != null;
+    }
+
+    public static void beginTextBatching() {
+        if (TEXT_BATCH.hasActiveLayers()) {
+            Excelsior.LOGGER.warn("Text batching was already active! endTextBatching() was not called before beginTextBatching(). This will cause rendering issues.");
+            TEXT_BATCH.close();
+        }
+        TEXT_CONSUMER = TEXT_BATCH;
+    }
+
+    public static void endTextBatching() {
+        TEXT_CONSUMER = null;
+        TEXT_BATCH.draw();
+    }
+
+    public static boolean isTextBatching() {
+        return TEXT_CONSUMER != null;
+    }
+
+    public static void beginItemModelBatching() {
+        if (LIT_ITEM_MODEL_BATCH.hasActiveLayers() || UNLIT_ITEM_MODEL_BATCH.hasActiveLayers()) {
+            Excelsior.LOGGER.warn("Item model batching was already active! endItemModelBatching() was not called before beginItemModelBatching(). This will cause rendering issues.");
+            LIT_ITEM_MODEL_BATCH.close();
+            UNLIT_ITEM_MODEL_BATCH.close();
+        }
+        LIT_ITEM_MODEL_CONSUMER = LIT_ITEM_MODEL_BATCH;
+        UNLIT_ITEM_MODEL_CONSUMER = UNLIT_ITEM_MODEL_BATCH;
+    }
+
+    public static void endItemModelBatching() {
+        LIT_ITEM_MODEL_CONSUMER = null;
+        UNLIT_ITEM_MODEL_CONSUMER = null;
+
+        UNLIT_ITEM_MODEL_BATCH.draw();
+        LIT_ITEM_MODEL_BATCH.draw();
+    }
+
+    public static boolean isItemModelBatching() {
+        return LIT_ITEM_MODEL_CONSUMER != null || UNLIT_ITEM_MODEL_CONSUMER != null;
+    }
+
+    public static void beginItemOverlayBatching() {
+        if (ITEM_OVERLAY_BATCH.hasActiveLayers()) {
+            Excelsior.LOGGER.warn("Item overlay batching was already active! endItemOverlayBatching() was not called before beginItemOverlayBatching(). This will cause rendering issues.");
+            ITEM_OVERLAY_BATCH.close();
+        }
+        ITEM_OVERLAY_CONSUMER = ITEM_OVERLAY_BATCH;
+    }
+
+    public static void endItemOverlayBatching() {
+        ITEM_OVERLAY_CONSUMER = null;
+        ITEM_OVERLAY_BATCH.draw();
+    }
+
+    public static boolean isItemOverlayBatching() {
+        return ITEM_OVERLAY_CONSUMER != null;
+    }
+
+    /**
+     * Creates a map of layer buffers for the given RenderLayer's.
+     *
+     * @param layers The RenderLayer's for which to create the layer buffers.
+     * @return A map of layer buffers for the given RenderLayer's.
+     */
+    public static Map<RenderLayer, BufferBuilder> createLayerBuffers(final RenderLayer... layers) {
+        final Object2ObjectMap<RenderLayer, BufferBuilder> layerBuffers = new Object2ObjectLinkedOpenHashMap<>(layers.length);
+        for (final RenderLayer layer : layers) {
+            layerBuffers.put(layer, new BufferBuilder(layer.getExpectedBufferSize()));
+        }
+        return layerBuffers;
+    }
+
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "excelsior",
+  "version": "${version}",
+  "name": "Excelsior",
+  "description": "Enhance and optimize the rendering speed of immediate mode in Minecraft.",
+  "authors": [
+    "M4ximumpizza"
+  ],
+  "license": "M4x Protective License",
+  "icon": "assets/excelsior/logo.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "org.main.excelsior.Excelsior"
+    ],
+    "preLaunch": [
+      "com.llamalad7.mixinextras.MixinExtrasBootstrap::init"
+    ]
+  },
+  "accessWidener": "excelsior.accesswidener",
+  "mixins": [
+    "excelsior.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.12.0",
+    "minecraft": "1.19.3",
+    "java": ">=17"
+  },
+  "recommends": {
+    "sodium": "*"
+  },
+  "conflicts": {
+    "slight-gui-modifications": "*"
+  },
+  "breaks": {
+    "optifabric": "*",
+    "vulkanmod": "*"
+  }
+}
