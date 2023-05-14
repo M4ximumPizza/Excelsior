@@ -44,20 +44,18 @@ public abstract class MixinItemRenderer {
 
     @Inject(method = "renderGuiQuad", at = @At("HEAD"), cancellable = true)
     private void renderGuiQuadIntoBuffer(BufferBuilder buffer, int x, int y, int width, int height, int red, int green, int blue, int alpha, CallbackInfo ci) {
-        if (BatchingBuffers.ITEM_OVERLAY_CONSUMER == null) {
-            return;
+        if (BatchingBuffers.ITEM_OVERLAY_CONSUMER != null) {
+            ci.cancel();
+            int color = alpha << 24 | red << 16 | green << 8 | blue;
+            final float[] shaderColor = RenderSystem.getShaderColor();
+            final int argb = (int) (shaderColor[3] * 255) << 24 | (int) (shaderColor[0] * 255) << 16 | (int) (shaderColor[1] * 255) << 8 | (int) (shaderColor[2] * 255);
+            color = ColorHelper.Argb.mixColor(color, argb);
+            final VertexConsumer vertexConsumer = BatchingBuffers.ITEM_OVERLAY_CONSUMER.getBuffer(BatchingRenderLayers.GUI_QUAD);
+            vertexConsumer.vertex(x, y, 0F).color(color).next();
+            vertexConsumer.vertex(x, y + height, 0F).color(color).next();
+            vertexConsumer.vertex(x + width, y + height, 0F).color(color).next();
+            vertexConsumer.vertex(x + width, y, 0F).color(color).next();
         }
-
-        ci.cancel();
-        int color = alpha << 24 | red << 16 | green << 8 | blue;
-        final float[] shaderColor = RenderSystem.getShaderColor();
-        final int argb = ((int) (shaderColor[3] * 255) << 24) | ((int) (shaderColor[0] * 255) << 16) | ((int) (shaderColor[1] * 255) << 8) | ((int) (shaderColor[2] * 255));
-        color = ColorHelper.Argb.mixColor(color, argb);
-
-        final VertexConsumer vertexConsumer = BatchingBuffers.ITEM_OVERLAY_CONSUMER.getBuffer(BatchingRenderLayers.GUI_QUAD);
-        vertexConsumer.vertex(x, y, 0F).color(color).next();
-        vertexConsumer.vertex(x, y + height, 0F).color(color).next();
-        vertexConsumer.vertex(x + width, y + height, 0F).color(color).next();
-        vertexConsumer.vertex(x + width, y, 0F).color(color).next();
     }
+
 }
