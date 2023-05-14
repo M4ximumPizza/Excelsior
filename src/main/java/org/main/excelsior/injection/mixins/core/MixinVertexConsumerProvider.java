@@ -19,7 +19,7 @@ import java.util.Map;
 public interface MixinVertexConsumerProvider {
 
     /**
-     * @author Logan Abernathy
+     * @author RK_01
      * @reason Universal Batching
      */
     @Overwrite

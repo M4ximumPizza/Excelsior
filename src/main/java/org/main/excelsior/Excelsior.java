@@ -20,7 +20,7 @@ import java.nio.file.Files;
 
 public class Excelsior implements ClientModInitializer {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger("Excelsior");
+    public static final Logger LOGGER = LoggerFactory.getLogger("ImmediatelyFast");
     public static final Unsafe UNSAFE = getUnsafe();
     public static ExcelsiorConfig config;
 
