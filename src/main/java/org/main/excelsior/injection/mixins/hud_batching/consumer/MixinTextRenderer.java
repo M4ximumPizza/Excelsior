@@ -22,5 +22,4 @@ public abstract class MixinTextRenderer {
     private VertexConsumerProvider renderTextIntoBuffer2(VertexConsumerProvider vertexConsumers) {
         return BatchingBuffers.TEXT_CONSUMER != null ? BatchingBuffers.TEXT_CONSUMER : vertexConsumers;
     }
-
 }
