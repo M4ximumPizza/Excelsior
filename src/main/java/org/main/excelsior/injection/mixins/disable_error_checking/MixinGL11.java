@@ -14,8 +14,8 @@ import org.spongepowered.asm.mixin.Overwrite;
 public abstract class MixinGL11 {
 
     /**
-     * @author RK_01
-     * @reason Disable error checking
+     * @author Logan Abernathy
+     * @reason Universal Batching
      */
     @NativeType("GLenum")
     @Overwrite
