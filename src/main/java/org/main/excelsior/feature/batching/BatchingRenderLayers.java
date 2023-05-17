@@ -10,6 +10,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import org.apache.commons.lang3.tuple.Pair;
+import org.main.excelsior.Excelsior;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -23,7 +24,7 @@ import static net.minecraft.util.Util.memoize;
  */
 public class BatchingRenderLayers {
 
-    public static final BiFunction<Integer, BlendFuncDepthFunc, RenderLayer> COLORED_TEXTURE = memoize((id, blendFuncDepthFunc) -> new ImmediatelyFastRenderLayer("texture", VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR, false, () -> {
+    public static final BiFunction<Integer, BlendFuncDepthFunc, RenderLayer> COLORED_TEXTURE = memoize((id, blendFuncDepthFunc) -> new Excelsior("texture", VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR, false, () -> {
         RenderSystem.enableBlend();
         RenderSystem.enableTexture();
         blendFuncDepthFunc.apply();
@@ -36,7 +37,7 @@ public class BatchingRenderLayers {
         RenderSystem.disableTexture();
     }));
 
-    public static final Function<BlendFuncDepthFunc, RenderLayer> FILLED_QUAD = memoize(blendFuncDepthFunc -> new ImmediatelyFastRenderLayer("filled_quad", VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR, false, () -> {
+    public static final Function<BlendFuncDepthFunc, RenderLayer> FILLED_QUAD = memoize(blendFuncDepthFunc -> new Excelsior("filled_quad", VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR, false, () -> {
         RenderSystem.enableBlend();
         RenderSystem.disableTexture();
         blendFuncDepthFunc.apply();
@@ -48,7 +49,7 @@ public class BatchingRenderLayers {
         RenderSystem.enableTexture();
     }));
 
-    public static final RenderLayer GUI_QUAD = new ImmediatelyFastRenderLayer("gui_quad", VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR, false, () -> {
+    public static final RenderLayer GUI_QUAD = new Excelsior("gui_quad", VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR, false, () -> {
         RenderSystem.enableBlend();
         RenderSystem.disableTexture();
         RenderSystem.disableDepthTest();
@@ -83,10 +84,10 @@ public class BatchingRenderLayers {
     }
 
 
-    private static class ImmediatelyFastRenderLayer extends RenderLayer {
+    private static class Excelsior extends RenderLayer {
 
-        private ImmediatelyFastRenderLayer(final String name, final VertexFormat.DrawMode drawMode, final VertexFormat vertexFormat, final boolean translucent, final Runnable startAction, final Runnable endAction) {
-            super("immediatelyfast_" + name, vertexFormat, drawMode, 2048, false, translucent, startAction, endAction);
+        private Excelsior(final String name, final VertexFormat.DrawMode drawMode, final VertexFormat vertexFormat, final boolean translucent, final Runnable startAction, final Runnable endAction) {
+            super("excelsior_" + name, vertexFormat, drawMode, 2048, false, translucent, startAction, endAction);
         }
 
     }
