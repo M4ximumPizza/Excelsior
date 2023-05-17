@@ -3,6 +3,7 @@
  */
 package org.main.excelsior.injection.mixins.font_atlas_resizing;
 
+
 import net.minecraft.client.font.GlyphAtlasTexture;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;

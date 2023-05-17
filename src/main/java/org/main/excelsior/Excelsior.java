@@ -9,6 +9,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import org.main.excelsior.compat.IrisCompat;
 import org.main.excelsior.feature.core.ExcelsiorConfig;
+import org.main.excelsior.feature.core.ExcelsiorRuntimeConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.Unsafe;
@@ -23,18 +24,20 @@ public class Excelsior implements ClientModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("Excelsior");
     public static final Unsafe UNSAFE = getUnsafe();
     public static ExcelsiorConfig config;
+    public static ExcelsiorRuntimeConfig runtimeConfig;
 
     @Override
     public void onInitializeClient() {
-        FabricLoader.getInstance().getModContainer("excelsior").ifPresent(modContainer ->
-                LOGGER.info("Loading Excelsior " + modContainer.getMetadata().getVersion().getFriendlyString())
-        );
-        FabricLoader.getInstance().getModContainer("iris").ifPresent(modContainer -> {
-            LOGGER.info("Found Iris " + modContainer.getMetadata().getVersion().getFriendlyString() + ". Enabling compatibility.");
-            IrisCompat.init();
+        FabricLoader.getInstance().getModContainer("excelsior").ifPresent(modContainer -> {
+            LOGGER.info("Loading ImmediatelyFast " + modContainer.getMetadata().getVersion().getFriendlyString());
         });
-
-        // System.load("C:\\Program Files\\RenderDoc\\renderdoc.dll");
+        if (!Excelsior.config.debug_only_and_not_recommended_disable_mod_conflict_handling) {
+            FabricLoader.getInstance().getModContainer("iris").ifPresent(modContainer -> {
+                LOGGER.info("Found Iris " + modContainer.getMetadata().getVersion().getFriendlyString() + ". Enabling compatibility.");
+                IrisCompat.init();
+            });
+        }
+        //System.load("C:\\Program Files\\RenderDoc\\renderdoc.dll");
     }
 
     public static void loadConfig() {
@@ -43,16 +46,22 @@ public class Excelsior implements ClientModInitializer {
             try {
                 config = new Gson().fromJson(new FileReader(configFile), ExcelsiorConfig.class);
             } catch (Throwable e) {
-                LOGGER.error("Failed to load Excelsior config. Resetting it.", e);
+                LOGGER.error("Failed to load ImmediatelyFast config. Resetting it.", e);
             }
         }
-        if (config == null)
+        if (config == null) {
             config = new ExcelsiorConfig();
+        }
         try {
             Files.writeString(configFile.toPath(), new GsonBuilder().setPrettyPrinting().create().toJson(config));
         } catch (Throwable e) {
-            LOGGER.error("Failed to save Excelsior config.", e);
+            LOGGER.error("Failed to save ImmediatelyFast config.", e);
         }
+        resetRuntimeConfig();
+    }
+
+    public static void resetRuntimeConfig() {
+        runtimeConfig = new ExcelsiorRuntimeConfig(config);
     }
 
     private static Unsafe getUnsafe() {
@@ -67,4 +76,5 @@ public class Excelsior implements ClientModInitializer {
         }
         throw new IllegalStateException("Unable to get Unsafe instance");
     }
+
 }

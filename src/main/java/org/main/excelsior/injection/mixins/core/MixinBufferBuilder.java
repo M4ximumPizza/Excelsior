@@ -30,5 +30,4 @@ public abstract class MixinBufferBuilder implements IBufferBuilder {
             this.buffer = null;
         }
     }
-
 }

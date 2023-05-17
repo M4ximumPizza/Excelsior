@@ -38,5 +38,4 @@ public class IrisCompat {
             System.exit(-1);
         }
     }
-
 }

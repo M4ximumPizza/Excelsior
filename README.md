@@ -9,6 +9,6 @@ If any bugs occur, make a [Issue.](https://github.com/M4ximumpizza/Excelsior/iss
 
 :warning: This mod is fabric only. Sadly i have no plan to port this to forge. <br>
 
-:warning: Excelsior is non compatible with Optifabric and the VulkanMod. 
+:warning: Excelsior is non compatible with Optifabric.
 
 It works with Sodium and works with sodium to make higher FPS/Rendering.

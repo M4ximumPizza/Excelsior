@@ -170,5 +170,4 @@ public class BatchingBuffers {
         }
         return layerBuffers;
     }
-
 }

@@ -25,5 +25,4 @@ public abstract class MixinGL11 {
         }
         return GL11C.glGetError();
     }
-
 }

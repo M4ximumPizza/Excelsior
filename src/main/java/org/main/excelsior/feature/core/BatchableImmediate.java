@@ -3,6 +3,7 @@
  */
 package org.main.excelsior.feature.core;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.RenderLayer;
 
@@ -20,8 +21,7 @@ public class BatchableImmediate extends ImmediateAdapter {
     @Override
     protected void _draw(final RenderLayer layer) {
         for (BufferBuilder bufferBuilder : this.getBufferBuilder(layer)) {
-            if (bufferBuilder != null) layer.draw(bufferBuilder, 0, 0, 0);
+            if (bufferBuilder != null) layer.draw(bufferBuilder, RenderSystem.getVertexSorting());
         }
     }
-
 }

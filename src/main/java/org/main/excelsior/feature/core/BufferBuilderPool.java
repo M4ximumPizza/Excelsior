@@ -15,6 +15,7 @@ public class BufferBuilderPool {
 
     private static final int INITIAL_SIZE = 256;
     private static final Set<Pair<BufferBuilder, Long>> POOL = new ReferenceArraySet<>(INITIAL_SIZE);
+
     private static long lastCleanup = 0;
 
     private BufferBuilderPool() {
@@ -27,14 +28,14 @@ public class BufferBuilderPool {
         }
 
         for (Pair<BufferBuilder, Long> entry : POOL) {
-            BufferBuilder bufferBuilder = entry.getKey();
+            final BufferBuilder bufferBuilder = entry.getKey();
             if (!bufferBuilder.isBuilding() && !((IBufferBuilder) bufferBuilder).isReleased()) {
                 entry.setValue(System.currentTimeMillis());
                 return bufferBuilder;
             }
         }
 
-        BufferBuilder bufferBuilder = new BufferBuilder(256);
+        final BufferBuilder bufferBuilder = new BufferBuilder(256);
         POOL.add(new MutablePair<>(bufferBuilder, System.currentTimeMillis()));
         return bufferBuilder;
     }

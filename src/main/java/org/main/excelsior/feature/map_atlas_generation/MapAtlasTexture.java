@@ -55,5 +55,4 @@ public class MapAtlasTexture implements AutoCloseable {
         this.texture.close();
         MinecraftClient.getInstance().getTextureManager().destroyTexture(this.identifier);
     }
-
 }

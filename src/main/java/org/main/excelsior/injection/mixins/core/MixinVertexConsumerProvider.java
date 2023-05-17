@@ -24,7 +24,11 @@ public interface MixinVertexConsumerProvider {
      */
     @Overwrite
     static VertexConsumerProvider.Immediate immediate(Map<RenderLayer, BufferBuilder> layerBuffers, BufferBuilder fallbackBuffer) {
-        if (Excelsior.config.debug_only_and_not_recommended_disable_universal_batching) {
+        if (Excelsior.config.debug_only_and_not_recommended_disable_universal_batching || fallbackBuffer == null) {
+            if (fallbackBuffer == null) { // Indicate that this shouldn't get batched regardless of the config
+                fallbackBuffer = Tessellator.getInstance().getBuffer();
+            }
+
             return new VertexConsumerProvider.Immediate(fallbackBuffer, layerBuffers);
         }
 
@@ -33,5 +37,4 @@ public interface MixinVertexConsumerProvider {
         }
         return new BatchableImmediate(layerBuffers);
     }
-
 }

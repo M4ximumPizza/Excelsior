@@ -10,23 +10,30 @@ import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class ExcelsiorMixinPlugin implements IMixinConfigPlugin {
 
-    private final String mixinPackage;
-
-    public ExcelsiorMixinPlugin() {
-        this.mixinPackage = getClass().getPackage().getName() + ".";
-    }
+    private String mixinPackage;
 
     @Override
     public void onLoad(String mixinPackage) {
+        this.mixinPackage = mixinPackage + ".";
+
         Excelsior.loadConfig();
 
-        if (!Excelsior.config.debug_only_and_not_recommended_disable_mod_conflict_handling && FabricLoader.getInstance().isModLoaded("slight-gui-modifications")) {
-            Excelsior.LOGGER.warn("Slight GUI Modifications detected. Force disabling HUD Batching optimization.");
-            Excelsior.config.hud_batching = false;
+        if (!Excelsior.config.debug_only_and_not_recommended_disable_mod_conflict_handling) {
+            if (FabricLoader.getInstance().isModLoaded("slight-gui-modifications")) {
+                Excelsior.LOGGER.warn("Slight GUI Modifications detected. Force disabling HUD Batching optimization.");
+                Excelsior.config.hud_batching = false;
+            }
+        }
+        if (!Excelsior.config.debug_only_and_not_recommended_disable_os_conflict_handling) {
+            if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("mac")) {
+                Excelsior.LOGGER.warn("macOS detected. Force disabling Fast Buffer Upload optimization.");
+                Excelsior.config.fast_buffer_upload = false;
+            }
         }
     }
 
@@ -37,23 +44,35 @@ public class ExcelsiorMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (!mixinClassName.startsWith(mixinPackage))
-            return false;
+        if (!mixinClassName.startsWith(this.mixinPackage)) return false;
 
-        String packageName = mixinClassName.substring(mixinPackage.length());
+        final String mixinName = mixinClassName.substring(this.mixinPackage.length());
+        final String packageName = mixinName.substring(0, mixinName.lastIndexOf('.'));
 
-        if (!Excelsior.config.font_atlas_resizing && packageName.startsWith("font_atlas_resizing"))
+        if (!Excelsior.config.font_atlas_resizing && packageName.startsWith("font_atlas_resizing")) {
             return false;
-        if (!Excelsior.config.map_atlas_generation && packageName.startsWith("map_atlas_generation"))
+        }
+        if (!Excelsior.config.map_atlas_generation && packageName.startsWith("map_atlas_generation")) {
             return false;
-        if (!Excelsior.config.hud_batching && packageName.startsWith("hud_batching"))
+        }
+        if (!Excelsior.config.hud_batching && packageName.startsWith("hud_batching")) {
             return false;
-        if (!Excelsior.config.fast_text_lookup && packageName.startsWith("fast_text_lookup"))
+        }
+        if (!Excelsior.config.fast_text_lookup && packageName.startsWith("fast_text_lookup")) {
             return false;
-        if (!Excelsior.config.fast_buffer_upload && packageName.startsWith("fast_buffer_upload"))
+        }
+        if (!Excelsior.config.fast_buffer_upload && packageName.startsWith("fast_buffer_upload")) {
             return false;
-        if (!Excelsior.config.experimental_disable_error_checking && packageName.startsWith("disable_error_checking"))
+        }
+        if (!Excelsior.config.experimental_disable_error_checking && packageName.startsWith("disable_error_checking")) {
             return false;
+        }
+
+        if (packageName.startsWith("hud_batching.compat.armorchroma") && !FabricLoader.getInstance().isModLoaded("armorchroma")) {
+            return false;
+        } else if (packageName.startsWith("hud_batching.compat.appleskin") && !FabricLoader.getInstance().isModLoaded("appleskin")) {
+            return false;
+        }
 
         return true;
     }
